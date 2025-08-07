@@ -1,45 +1,243 @@
-<!DOCTYPE html>
-<html lang="ko">
+<!DOCTYPE html><html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>MetaToRI Login</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>미미로또방</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to bottom, #ffeaa7, #fab1a0);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 80px;
+      overflow-x: hidden;
+    }
+    header {
+      margin-top: 20px;
+      animation: fadeIn 1s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    img {
+      width: 180px;
+      height: auto;
+    }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 30px;
+      margin-bottom: 10px;
+      animation: fadeIn 1s ease;
+    }
+    .buttons button {
+      padding: 10px 15px;
+      border: none;
+      color: white;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+    .regular { background-color: #d63031; }
+    .analysis { background-color: #0984e3; }
+    .ai { background-color: #00b894; }.ball-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  gap: 10px;
+  animation: slideUp 0.8s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.ball {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  font-size: 18px;
+  animation: pop 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+@keyframes pop {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.select-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
+  max-width: 400px;
+  margin: 10px 0;
+}
+.select-actions button {
+  padding: 5px 10px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #636e72;
+  color: white;
+}
+.history {
+  width: 90%;
+  max-width: 400px;
+}
+.history-item {
+  background: white;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  animation: fadeIn 0.5s ease;
+}
+.history-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+.history-balls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.history-balls .ball {
+  width: 30px;
+  height: 30px;
+  font-size: 14px;
+}
+.delete-btn {
+  background: #ccc;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.checkbox {
+  margin-right: 5px;
+}
+
+  </style>
 </head>
 <body>
-  <h2>로그인 / 회원가입</h2>
-  <input id="email" type="email" placeholder="이메일"><br>
-  <input id="password" type="password" placeholder="비밀번호(6자 이상)"><br>
-  <button id="signup">회원가입</button>
-  <button id="login">로그인</button>
-  <p id="message" style="color:red;"></p>
+  <header>
+    <img src="https://raw.githubusercontent.com/pageno/Mimi/main/mimilogo.png" alt="미미로또방 로고">
+  </header>  <div class="buttons">
+    <button class="regular" onclick="drawNumbers('일반')">일반 뽑기</button>
+    <button class="analysis" onclick="drawNumbers('분석')">분석 뽑기</button>
+    <button class="ai" onclick="drawNumbers('AI')">AI 뽑기</button>
+  </div>  <div class="ball-container" id="balls"></div>  <div class="select-actions">
+    <label><input type="checkbox" id="selectAll" onchange="toggleAll(this)"> 전체 선택</label>
+    <button onclick="deleteSelected()">전체 삭제</button>
+  </div>  <div class="history" id="history"></div>  <script>
+    let drawing = false;
 
-  <script type="module">
-    import { auth } from './firebase.js';
-    import { createUserWithEmailAndPassword, signInWithEmailAndPassword } 
-      from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    function drawNumbers(type) {
+      if (drawing) return;
+      drawing = true;
 
-    const email = document.getElementById("email");
-    const password = document.getElementById("password");
-    const msg = document.getElementById("message");
-
-    document.getElementById("signup").addEventListener("click", async () => {
-      try {
-        await createUserWithEmailAndPassword(auth, email.value, password.value);
-        msg.style.color = "green";
-        msg.textContent = "회원가입 성공! 로그인해주세요.";
-      } catch (error) {
-        msg.textContent = error.message;
+      const numbers = new Set();
+      while (numbers.size < 6) {
+        numbers.add(Math.floor(Math.random() * 45) + 1);
       }
-    });
+      const result = [...numbers].sort((a,b)=>a-b);
 
-    document.getElementById("login").addEventListener("click", async () => {
-      try {
-        await signInWithEmailAndPassword(auth, email.value, password.value);
-        window.location.href = "gallery.html";
-      } catch (error) {
-        msg.textContent = "로그인 실패: " + error.message;
-      }
-    });
-  </script>
-</body>
+      const container = document.getElementById('balls');
+      container.innerHTML = '';
+
+      result.forEach((num, i) => {
+        setTimeout(() => {
+          const ball = document.createElement('div');
+          ball.className = 'ball';
+          ball.textContent = num;
+          ball.style.background = getColor(num);
+          container.appendChild(ball);
+          if (i === result.length - 1) {
+            setTimeout(() => {
+              saveHistory(result, type);
+              drawing = false;
+            }, 500);
+          }
+        }, i * 300);
+      });
+    }
+
+    function getColor(num) {
+      if (num <= 10) return '#fbc531';
+      if (num <= 20) return '#00a8ff';
+      if (num <= 30) return '#e84118';
+      if (num <= 40) return '#9c88ff';
+      return '#4cd137';
+    }
+
+    function saveHistory(numbers, type) {
+      const history = document.getElementById('history');
+      const item = document.createElement('div');
+      item.className = 'history-item';
+
+      const now = new Date();
+      const label = `${now.toLocaleDateString()} ${now.toLocaleTimeString()} (${type})`;
+
+      const top = document.createElement('div');
+      top.className = 'history-top';
+
+      const left = document.createElement('div');
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'checkbox';
+      left.appendChild(checkbox);
+      left.appendChild(document.createTextNode(label));
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'delete-btn';
+      delBtn.textContent = '삭제';
+      delBtn.onclick = () => history.removeChild(item);
+
+      top.appendChild(left);
+      top.appendChild(delBtn);
+
+      const balls = document.createElement('div');
+      balls.className = 'history-balls';
+      numbers.forEach(n => {
+        const b = document.createElement('div');
+        b.className = 'ball';
+        b.textContent = n;
+        b.style.background = getColor(n);
+        balls.appendChild(b);
+      });
+
+      item.appendChild(top);
+      item.appendChild(balls);
+      history.insertBefore(item, history.firstChild);
+    }
+
+    function toggleAll(source) {
+      document.querySelectorAll('.checkbox').forEach(cb => cb.checked = source.checked);
+    }
+
+    function deleteSelected() {
+      document.querySelectorAll('.checkbox:checked').forEach(cb => {
+        const item = cb.closest('.history-item');
+        if (item) item.remove();
+      });
+    }
+  </script></body>
 </html>
