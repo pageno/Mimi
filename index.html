@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="ko">
+<!DOCTYPE html>
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,16 +9,24 @@
       margin: 0;
       padding: 0;
       font-family: 'Arial', sans-serif;
-      background: linear-gradient(to bottom, #ffeaa7, #fab1a0);
+      background: radial-gradient(circle at top, #ffeaa7, #fab1a0, #d980fa);
+      animation: bgPulse 5s infinite alternate;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding-bottom: 80px;
       overflow-x: hidden;
+      position: relative;
     }
+    @keyframes bgPulse {
+      0% { background-position: 0% 50%; filter: brightness(1); }
+      100% { background-position: 100% 50%; filter: brightness(1.2); }
+    }
+
     header {
       margin-top: 20px;
       animation: fadeIn 1s ease;
+      z-index: 1;
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-20px); }
@@ -34,7 +43,7 @@
       gap: 10px;
       margin-top: 30px;
       margin-bottom: 10px;
-      animation: fadeIn 1s ease;
+      z-index: 1;
     }
     .buttons button {
       padding: 10px 15px;
@@ -45,120 +54,209 @@
       cursor: pointer;
       font-size: 16px;
       box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .buttons button:active {
+      transform: scale(1.1);
+      box-shadow: 0 0 20px #fff;
     }
     .regular { background-color: #d63031; }
     .analysis { background-color: #0984e3; }
-    .ai { background-color: #00b894; }.ball-container {
-  display: flex;
-  justify-content: center;
-  margin: 20px 0;
-  gap: 10px;
-  animation: slideUp 0.8s ease;
-}
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-.ball {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: white;
-  font-size: 18px;
-  animation: pop 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-}
-@keyframes pop {
-  0% { transform: scale(0); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-.select-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 90%;
-  max-width: 400px;
-  margin: 10px 0;
-}
-.select-actions button {
-  padding: 5px 10px;
-  font-size: 14px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  background-color: #636e72;
-  color: white;
-}
-.history {
-  width: 90%;
-  max-width: 400px;
-}
-.history-item {
-  background: white;
-  margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  animation: fadeIn 0.5s ease;
-}
-.history-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 14px;
-  margin-bottom: 5px;
-}
-.history-balls {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  flex-wrap: wrap;
-}
-.history-balls .ball {
-  width: 30px;
-  height: 30px;
-  font-size: 14px;
-}
-.delete-btn {
-  background: #ccc;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 12px;
-  cursor: pointer;
-}
-.checkbox {
-  margin-right: 5px;
-}
+    .ai { background-color: #00b894; }
 
+    .ball-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+      gap: 10px;
+      flex-wrap: wrap;
+      z-index: 1;
+    }
+    .ball {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      font-size: 18px;
+      animation: spinIn 1s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+    @keyframes spinIn {
+      0% { transform: rotate(0deg) scale(0); opacity: 0; }
+      100% { transform: rotate(360deg) scale(1); opacity: 1; }
+    }
+
+    .select-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 90%;
+      max-width: 400px;
+      margin: 10px 0;
+      z-index: 1;
+    }
+    .select-actions button {
+      padding: 5px 10px;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #636e72;
+      color: white;
+    }
+
+    .history {
+      width: 90%;
+      max-width: 400px;
+      z-index: 1;
+    }
+    .history-item {
+      background: white;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      animation: fadeIn 0.5s ease;
+    }
+    .history-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+    .history-balls {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    .history-balls .ball {
+      width: 30px;
+      height: 30px;
+      font-size: 14px;
+      animation: none;
+    }
+    .delete-btn {
+      background: #ccc;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .checkbox {
+      margin-right: 5px;
+    }
+
+    /* Flash Effect */
+    .flash {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.6);
+      z-index: 99;
+      animation: flashBang 0.4s ease;
+      pointer-events: none;
+    }
+    @keyframes flashBang {
+      0% { opacity: 0; }
+      50% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* Lotto Ball Particle Background */
+    .particles {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .particles .lotto {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: white;
+      animation: fallRotate linear infinite;
+    }
+
+    @keyframes fallRotate {
+      0% {
+        transform: translateY(-50px) rotate(0deg) scale(0.5);
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateY(110vh) rotate(360deg) scale(1);
+        opacity: 0;
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- 배경 음악 -->
+  <audio autoplay loop>
+    <source src="https://raw.githubusercontent.com/pageno/Mimi/main/%EB%AF%B8%EB%AF%B8%EB%A1%9C%EB%98%90%EB%B0%A9.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- 배경 파티클 -->
+  <div class="particles" id="particles"></div>
+
+  <!-- 로고 -->
   <header>
     <img src="https://raw.githubusercontent.com/pageno/Mimi/main/mimilogo.png" alt="미미로또방 로고">
-  </header>  <div class="buttons">
-    <button class="regular" onclick="drawNumbers('일반')">일반 뽑기</button>
-    <button class="analysis" onclick="drawNumbers('분석')">분석 뽑기</button>
-    <button class="ai" onclick="drawNumbers('AI')">AI 뽑기</button>
-  </div>  <div class="ball-container" id="balls"></div>  <div class="select-actions">
+  </header>
+
+  <!-- 버튼 -->
+  <div class="buttons">
+    <button class="regular" onclick="drawNumbers('일반', '#d63031')">일반 뽑기</button>
+    <button class="analysis" onclick="drawNumbers('분석', '#0984e3')">분석 뽑기</button>
+    <button class="ai" onclick="drawNumbers('AI', '#00b894')">AI 뽑기</button>
+  </div>
+
+  <!-- 공 출력 -->
+  <div class="ball-container" id="balls"></div>
+
+  <!-- 선택 삭제 -->
+  <div class="select-actions">
     <label><input type="checkbox" id="selectAll" onchange="toggleAll(this)"> 전체 선택</label>
     <button onclick="deleteSelected()">전체 삭제</button>
-  </div>  <div class="history" id="history"></div>  <script>
+  </div>
+
+  <!-- 히스토리 -->
+  <div class="history" id="history"></div>
+
+  <script>
     let drawing = false;
 
-    function drawNumbers(type) {
+    function drawNumbers(type, flashColor = "#fff") {
       if (drawing) return;
       drawing = true;
+
+      // 플래시 효과
+      const flash = document.createElement('div');
+      flash.className = 'flash';
+      flash.style.background = flashColor + 'AA';
+      document.body.appendChild(flash);
+      setTimeout(() => flash.remove(), 500);
 
       const numbers = new Set();
       while (numbers.size < 6) {
         numbers.add(Math.floor(Math.random() * 45) + 1);
       }
-      const result = [...numbers].sort((a,b)=>a-b);
+      const result = [...numbers].sort((a, b) => a - b);
 
       const container = document.getElementById('balls');
       container.innerHTML = '';
@@ -176,7 +274,7 @@
               drawing = false;
             }, 500);
           }
-        }, i * 300);
+        }, i * 400);
       });
     }
 
@@ -239,5 +337,27 @@
         if (item) item.remove();
       });
     }
-  </script></body>
+
+    function generateParticles() {
+      const particleArea = document.getElementById('particles');
+      for (let i = 0; i < 40; i++) {
+        const lotto = document.createElement('div');
+        lotto.className = 'lotto';
+
+        const num = Math.floor(Math.random() * 45) + 1;
+        lotto.textContent = num;
+        lotto.style.background = getColor(num);
+        lotto.style.left = Math.random() * 100 + 'vw';
+        lotto.style.animationDuration = (Math.random() * 5 + 5) + 's';
+        lotto.style.animationDelay = (Math.random() * 10) + 's';
+        particleArea.appendChild(lotto);
+      }
+    }
+
+    window.onload = () => {
+      generateParticles();
+      setInterval(generateParticles, 8000);
+    }
+  </script>
+</body>
 </html>
