@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>결과보기 · 미미로또방</title>
+  <style>
+    body{margin:0; padding:12px; font-family:Arial,sans-serif; background:#f7f8fa;}
+
+    /* 상단바 */
+    .bar{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+    .title{font-weight:800; font-size:16px;}
+
+    /* 가운데: 액션 버튼들 */
+    .actions{display:flex; gap:8px; flex-wrap:wrap;}
+    .actions a, .actions button{
+      padding:8px 10px; border:none; border-radius:8px;
+      color:#fff; font-weight:700; cursor:pointer; text-decoration:none;
+    }
+    .btn-home{background:#0984e3;}
+    .btn-lotto{background:#6c5ce7;}
+    .btn-refresh{background:#00b894;}
+    .btn-clear{background:#d63031;}
+
+    /* 오른쪽 끝: 로그인 박스 */
+    .userbox{
+      margin-left:auto; /* 맨 오른쪽으로 밀기 */
+      display:flex; gap:8px; align-items:center;
+      background:rgba(255,255,255,.9);
+      border-radius:999px; padding:6px 10px;
+      box-shadow:0 2px 8px rgba(0,0,0,.12); font-size:12px;
+    }
+    .userbox button{
+      border:none; background:#6c5ce7; color:#fff;
+      border-radius:8px; padding:6px 8px;
+      font-weight:700; cursor:pointer;
+    }
+    .user-name{font-weight:800; color:#2d3436;}
+    .logout{background:#d63031 !important;}
+
+    /* 1등번호 영역 */
+    .winbox{background:#fff; border-radius:12px; padding:12px;
+      box-shadow:0 2px 8px rgba(0,0,0,.08); margin-bottom:12px;}
+    .tiny{font-size:12px; color:#636e72; margin:0 0 8px;}
+    .preview{display:flex; flex-direction:column; gap:6px; margin-bottom:10px; min-height:40px;}
+    .line{display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+    .plus{font-weight:800; color:#2d3436;}
+    .ball{width:36px; height:36px; border-radius:50%; display:flex;
+      align-items:center; justify-content:center; color:#fff; font-weight:800;
+      font-size:14px; position:relative; box-shadow:0 2px 5px rgba(0,0,0,.2);}
+    .bonusring{box-shadow:0 0 0 2px #2d3436 inset, 0 0 0 2px #2d3436;}
+    .controls{display:flex; gap:8px;}
+    .apply{flex:1; padding:10px 12px; border:none; border-radius:10px;
+      background:#6c5ce7; color:#fff; font-weight:800; cursor:pointer;}
+    .reset{padding:10px 12px; border:none; border-radius:10px;
+      background:#d63031; color:#fff; font-weight:800; cursor:pointer;}
+
+    .note{color:#636e72; font-size:12px; margin:6px 0 10px;}
+    .row{background:#fff; border-radius:12px; padding:10px; margin-bottom:8px;
+      box-shadow:0 2px 8px rgba(0,0,0,.08);
+      display:flex; justify-content:space-between; align-items:center; gap:8px;}
+    .nums{display:flex; gap:6px; flex-wrap:wrap; align-items:center;}
+    .chip{width:28px; height:28px; border-radius:14px; display:flex;
+      align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:13px;}
+    .match{outline:2px solid #2ecc71;}
+    .bonuschip{box-shadow:0 0 0 2px #2d3436 inset, 0 0 0 2px #2d3436;}
+    .badge{background:rgba(255,255,255,.85); padding:4px 8px;
+      border-radius:999px; font-weight:800; font-size:12px;}
+    .badge.ok{color:#0e9f6e;} .badge.fail{color:#d63031;}
+    .meta{font-size:11px; color:#636e72;}
+    .del{padding:6px 8px; border:none; border-radius:8px;
+      background:#bbb; color:#fff; font-weight:700; cursor:pointer;}
+
+    /* 숫자패드 팝업 */
+    .overlay{position:fixed; inset:0; background:rgba(0,0,0,.35);
+      display:none; align-items:center; justify-content:center; z-index:50;}
+    .sheet{width:min(420px,92vw); background:#fff; border-radius:16px;
+      box-shadow:0 20px 40px rgba(0,0,0,.25); overflow:hidden;}
+    .sheet-head{display:flex; align-items:center; justify-content:space-between;
+      padding:10px 12px; background:#f3f4f6;}
+    .sheet-title{font-weight:800;}
+    .sheet-close{border:none; background:#e5e7eb; padding:6px 10px;
+      border-radius:8px; cursor:pointer; font-weight:700;}
+    .mode{display:flex; gap:6px; padding:10px 12px;}
+    .mode button{flex:1; padding:8px 10px; border:none; border-radius:8px;
+      cursor:pointer; font-weight:800; background:#eef2ff; color:#3730a3;}
+    .mode .active{background:#6c5ce7; color:#fff;}
+    .grid{display:grid; grid-template-columns:repeat(9,1fr); gap:6px;
+      padding:10px 12px; max-height:50vh; overflow:auto;}
+    .cell{padding:8px 0; border-radius:10px; text-align:center; font-weight:800;
+      cursor:pointer; user-select:none; background:#f8fafc; border:1px solid #e5e7eb;}
+    .cell.sel{background:#10b981; color:#fff; border-color:#0ea5a0;}
+    .cell.bon{background:#374151; color:#fff; border-color:#111827;}
+    .cell.dis{opacity:.35; pointer-events:none;}
+    .sheet-foot{display:flex; align-items:center; justify-content:space-between;
+      gap:8px; padding:10px 12px; background:#fafafa; border-top:1px solid #eee;}
+    .count{font-size:12px; color:#374151;}
+    .foot-actions{display:flex; gap:6px;}
+    .btn-sm{padding:8px 10px; border:none; border-radius:8px; font-weight:800; cursor:pointer;}
+    .btn-reset{background:#e5e7eb; color:#111827;}
+    .btn-save{background:#6c5ce7; color:#fff;}
+
+    /* 플로팅 홈 버튼 */
+    .fab-home{
+      position:fixed; right:14px; bottom:14px; z-index:60;
+      background:#0984e3; color:#fff; border:none; border-radius:999px;
+      padding:12px 14px; font-weight:800; box-shadow:0 8px 18px rgba(0,0,0,.18);
+      cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <div class="title">결과보기</div>
+
+    <!-- 가운데: 액션 버튼 -->
+    <div class="actions">
+      <a class="btn-home" href="index.html">홈으로</a>
+      <a class="btn-lotto" href="https://dhlottery.co.kr" target="_blank" rel="noopener">로또 사이트</a>
+      <button class="btn-refresh" onclick="render()">새로고침</button>
+      <button class="btn-clear" onclick="clearAll()">전체삭제</button>
+    </div>
+
+    <!-- 오른쪽 끝: 로그인 박스 -->
+    <div class="userbox" id="userBox">
+      <button id="btnLogin" onclick="login()">로그인</button>
+    </div>
+  </div>
+
+  <!-- 1등 번호 -->
+  <section class="winbox">
+    <p class="tiny">1등 번호를 설정하면 아래 히스토리 등수가 즉시 재계산됩니다.</p>
+    <div class="preview" id="preview">
+      <div class="line" id="pvMain"><span class="tiny">아직 설정된 번호가 없습니다.</span></div>
+      <div class="line" id="pvBonus"></div>
+    </div>
+    <div class="controls">
+      <button class="apply" onclick="openPad()">번호 입력</button>
+      <button class="reset" onclick="resetLastWin()">초기화</button>
+    </div>
+  </section>
+
+  <div class="note" id="winNote">현재 기준 번호가 없습니다. “번호 입력”을 눌러 선택해 주세요.</div>
+  <div id="list"></div>
+
+  <!-- 숫자패드 팝업 -->
+  <div class="overlay" id="padOverlay" role="dialog" aria-modal="true" aria-labelledby="padTitle">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div class="sheet-title" id="padTitle">1등 번호 선택</div>
+        <button class="sheet-close" onclick="closePad()">닫기</button>
+      </div>
+      <div class="mode">
+        <button id="modeMain" class="active" onclick="setMode('main')">당첨 6개</button>
+        <button id="modeBonus" onclick="setMode('bonus')">보너스</button>
+      </div>
+      <div class="grid" id="grid"></div>
+      <div class="sheet-foot">
+        <div class="count" id="countText">선택: 0 / 6</div>
+        <div class="foot-actions">
+          <button class="btn-sm btn-reset" onclick="resetSelection()">초기화</button>
+          <button class="btn-sm btn-save" onclick="saveSelection()">저장</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 플로팅 홈 버튼 -->
+  <button class="fab-home" onclick="location.href='index.html'">홈으로</button>
+
+  <script>
+    /* 저장 키 */
+    const LS_LASTWIN='mimiLastWin';
+    const LS_HISTORY='mimiHistory';
+    const LS_USER='mimiUser';
+
+    /* ===== 유저 ===== */
+    function getUser(){ try{return JSON.parse(localStorage.getItem(LS_USER)||'null');}catch(e){return null;} }
+    function setUser(u){ localStorage.setItem(LS_USER, JSON.stringify(u)); }
+    function clearUser(){ localStorage.removeItem(LS_USER); }
+    function renderUser(){
+      const box=document.getElementById('userBox'); const u=getUser();
+      if(!u){
+        box.innerHTML='<button id="btnLogin" onclick="login()">로그인</button>';
+      }else{
+        box.innerHTML=`
+          <span class="user-name">${u.nickname}</span>
+          <button class="logout" onclick="logout()">로그아웃</button>
+        `;
+      }
+    }
+    function login(){
+      const nickname = prompt('닉네임을 입력하세요');
+      if(!nickname) return;
+      setUser({nickname, at: Date.now()});
+      renderUser();
+      try{ localStorage.setItem('__mimiPing', String(Date.now())); }catch(e){}
+    }
+    function logout(){
+      if(!confirm('로그아웃할까요?')) return;
+      clearUser(); renderUser();
+      try{ localStorage.setItem('__mimiPing', String(Date.now())); }catch(e){}
+    }
+
+    /* 유틸 */
+    function getColor(n){ if(n<=10)return'#fbc531'; if(n<=20)return'#00a8ff'; if(n<=30)return'#e84118'; if(n<=40)return'#9c88ff'; return'#4cd137'; }
+    function loadHistory(){ try{ return JSON.parse(localStorage.getItem(LS_HISTORY)||'[]'); }catch(e){ return []; } }
+    function saveHistory(a){ localStorage.setItem(LS_HISTORY, JSON.stringify(a)); }
+    function getLastWin(){ try{ return JSON.parse(localStorage.getItem(LS_LASTWIN)||'null'); }catch(e){ return null; } }
+    function setLastWin(obj){ localStorage.setItem(LS_LASTWIN, JSON.stringify(obj)); }
+    function clearLastWin(){ localStorage.removeItem(LS_LASTWIN); }
+
+    /* 2줄 프리뷰 */
+    function renderPreview(temp){
+      const pvMain=document.getElementById('pvMain');
+      const pvBonus=document.getElementById('pvBonus');
+      pvMain.innerHTML=''; pvBonus.innerHTML='';
+      const lw = temp || getLastWin();
+      if(!lw || !Array.isArray(lw.numbers) || lw.numbers.length===0){
+        pvMain.innerHTML='<span class="tiny">아직 설정된 번호가 없습니다.</span>';
+        return;
+      }
+      lw.numbers.slice().sort((a,b)=>a-b).forEach(n=>{
+        const b=document.createElement('div'); b.className='ball'; b.style.background=getColor(n); b.textContent=n;
+        pvMain.appendChild(b);
+      });
+      const plus=document.createElement('span'); plus.className='plus'; plus.textContent='+ 보너스';
+      pvBonus.appendChild(plus);
+      if(lw.bonus!=null){
+        const bb=document.createElement('div'); bb.className='ball bonusring'; bb.style.background='#2d3436'; bb.textContent=lw.bonus;
+        pvBonus.appendChild(bb);
+      }else{
+        const dash=document.createElement('span'); dash.className='plus'; dash.textContent=' - ';
+        pvBonus.appendChild(dash);
+      }
+    }
+
+    function updateWinNote(saved=false){
+      const note=document.getElementById('winNote');
+      const lw=getLastWin();
+      if(!lw || !Array.isArray(lw.numbers) || lw.numbers.length!==6){
+        note.textContent='현재 기준 번호가 없습니다. “번호 입력”을 눌러 선택해 주세요.';
+      }else{
+        const base=`현재 기준: ${lw.numbers.join(', ')}${lw.bonus? ' + '+lw.bonus : ''}`;
+        note.innerHTML = saved ? `<span style="background:#eef2ff;color:#3730a3;border-radius:999px;padding:2px 6px;font-weight:700;font-size:12px;">저장됨</span> ${base}` : base;
+      }
+    }
+
+    /* 등수 계산 */
+    function evaluateRank(draw){
+      const lw=getLastWin();
+      if(!lw || !Array.isArray(lw.numbers) || lw.numbers.length!==6) return { label:'기준없음', rank:0, matches:[], bonusMatch:false };
+      const winSet=new Set(lw.numbers);
+      const matched=draw.filter(n=>winSet.has(n));
+      const bonusMatch=lw.bonus ? draw.includes(lw.bonus) : false;
+      const c=matched.length; let rank=0, label='꽝';
+      if(c===6){ rank=1; label='1등'; }
+      else if(c===5 && bonusMatch){ rank=2; label='2등'; }
+      else if(c===5){ rank=3; label='3등'; }
+      else if(c===4){ rank=4; label='4등'; }
+      else if(c===3){ rank=5; label='5등'; }
+      return { label, rank, matches:matched, bonusMatch };
+    }
+
+    /* 히스토리 렌더 */
+    function render(){
+      const list=document.getElementById('list');
+      const data=loadHistory();
+      list.innerHTML='';
+      if(data.length===0){
+        list.innerHTML='<div style="color:#636e72;font-size:13px;">아직 기록이 없습니다. <b>홈에서 번호를 뽑아보세요.</b></div>';
+        return;
+      }
+      const lw=getLastWin(); const winSet=lw && Array.isArray(lw.numbers)? new Set(lw.numbers) : null;
+      data.forEach((item, idx)=>{
+        const div=document.createElement('div'); div.className='row';
+
+        /* 왼쪽 */
+        const left=document.createElement('div'); left.style.display='flex'; left.style.flexDirection='column'; left.style.gap='6px';
+        const nums=document.createElement('div'); nums.className='nums';
+        item.nums.forEach(n=>{
+          const chip=document.createElement('div'); chip.className='chip'; chip.style.background=getColor(n); chip.textContent=n;
+          if(winSet && winSet.has(n)) chip.classList.add('match');
+          if(lw && lw.bonus===n) chip.classList.add('bonuschip');
+          nums.appendChild(chip);
+        });
+        const meta=document.createElement('div'); meta.className='meta';
+        const d=new Date(item.ts); meta.textContent=`${item.mode} · ${d.toLocaleString()}`;
+        left.appendChild(nums); left.appendChild(meta);
+
+        /* 오른쪽 */
+        const right=document.createElement('div'); right.style.display='flex'; right.style.alignItems='center'; right.style.gap='8px';
+        const {label, rank, matches, bonusMatch}=evaluateRank(item.nums);
+        const badge=document.createElement('span'); badge.className='badge '+((rank>=1&&rank<=5)?'ok':(label==='기준없음'?'':'fail'));
+        badge.textContent=(label==='기준없음') ? '지난 회차 미설정' : `${label} (${matches.length}${bonusMatch?'+B':''} 일치)`;
+
+        const del=document.createElement('button'); del.className='del'; del.textContent='삭제';
+        del.onclick=()=>{ 
+          const arr=loadHistory(); 
+          arr.splice(idx,1); 
+          saveHistory(arr); 
+          render(); 
+          try{ localStorage.setItem('__mimiPing', String(Date.now())); }catch(e){} 
+        };
+
+        right.appendChild(badge); 
+        right.appendChild(del);
+
+        div.appendChild(left); 
+        div.appendChild(right);
+        list.appendChild(div);
+      });
+    }
+
+    /* ===== 숫자패드 상태/로직 ===== */
+    let padMode='main';
+    let selSet=new Set();
+    let selBonus=null;
+
+    const overlay = document.getElementById('padOverlay');
+    const gridEl  = document.getElementById('grid');
+    const countEl = document.getElementById('countText');
+    const modeMainBtn = document.getElementById('modeMain');
+    const modeBonusBtn= document.getElementById('modeBonus');
+
+    function setMode(m){
+      padMode=m;
+      modeMainBtn.classList.toggle('active', m==='main');
+      modeBonusBtn.classList.toggle('active', m==='bonus');
+      paintGrid();
+    }
+
+    function openPad(){
+      const lw=getLastWin();
+      selSet = new Set(lw && lw.numbers ? lw.numbers.slice(0,6) : []);
+      selBonus = lw && (lw.bonus!=null) ? lw.bonus : null;
+
+      setMode('main');
+      buildGrid();
+      paintGrid();
+      overlay.style.display='flex';
+
+      renderPreview({numbers:[...selSet].sort((a,b)=>a-b), bonus: selBonus});
+    }
+
+    function closePad(){
+      overlay.style.display='none';
+      renderPreview();
+    }
+
+    function buildGrid(){
+      gridEl.innerHTML='';
+      for(let n=1;n<=45;n++){
+        const cell=document.createElement('div');
+        cell.className='cell';
+        cell.textContent=n;
+        cell.onclick=()=>onTap(n);
+        gridEl.appendChild(cell);
+      }
+    }
+
+    function onTap(n){
+      if(padMode==='main'){
+        if(selSet.has(n)){ selSet.delete(n); }
+        else{
+          if(selSet.size>=6) return;
+          if(selBonus===n) return;
+          selSet.add(n);
+        }
+      }else{
+        if(selSet.has(n)) return;
+        selBonus = (selBonus===n) ? null : n;
+      }
+      paintGrid();
+      renderPreview({numbers:[...selSet].sort((a,b)=>a-b), bonus: selBonus});
+    }
+
+    function paintGrid(){
+      const cells = gridEl.children;
+      for(let i=0;i<cells.length;i++){
+        const n=i+1;
+        const el=cells[i];
+        el.classList.remove('sel','bon','dis');
+        if(selSet.has(n)) el.classList.add('sel');
+        if(selBonus===n) el.classList.add('bon');
+
+        if(padMode==='main'){
+          if(selSet.size>=6 && !selSet.has(n)) el.classList.add('dis');
+          if(selBonus===n) el.classList.add('dis');
+        }else{
+          if(selSet.has(n)) el.classList.add('dis');
+        }
+      }
+      countEl.textContent = `선택: ${selSet.size} / 6` + (selBonus!=null ? ` · 보너스 ${selBonus}` : '');
+    }
+
+    function resetSelection(){
+      if(padMode==='main'){ selSet.clear(); } else { selBonus=null; }
+      paintGrid();
+      renderPreview({numbers:[...selSet].sort((a,b)=>a-b), bonus: selBonus});
+    }
+
+    function saveSelection(){
+      if(selSet.size!==6){ alert('당첨 번호 6개를 선택해 주세요.'); return; }
+      const numbers=[...selSet].sort((a,b)=>a-b);
+      setLastWin({numbers, bonus: selBonus});
+      closePad();
+      updateWinNote(true);
+      render(); // 등수 즉시 재계산
+      try{ localStorage.setItem('__mimiPing', String(Date.now())); }catch(e){}
+    }
+
+    function resetLastWin(){
+      if(!confirm('1등 번호를 초기화할까요?')) return;
+      clearLastWin();
+      renderPreview();
+      updateWinNote();
+      render();
+      try{ localStorage.setItem('__mimiPing', String(Date.now())); }catch(e){}
+    }
+
+    /* 초기 로드 */
+    window.onload=()=>{
+      renderUser();
+      renderPreview();
+      updateWinNote();
+      render();
+    };
+
+    function clearAll(){ 
+      if(confirm('모든 기록을 삭제할까요?')){ 
+        saveHistory([]); 
+        render(); 
+        try{ localStorage.setItem('__mimiPing', String(Date.now())); }catch(e){} 
+      } 
+    }
+
+    // ESC / 오버레이 영역 클릭 시 닫기
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && overlay.style.display==='flex') closePad(); });
+    overlay.addEventListener('click',(e)=>{ if(e.target===overlay) closePad(); });
+
+    /* ✅ 메인/다른 탭과 실시간 동기화 */
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'mimiHistory' || e.key === '__mimiPing') render();           // 메인에서 저장/삭제
+      if (e.key === 'mimiLastWin'){ renderPreview(); updateWinNote(); render(); } // 기준 번호 변경
+      if (e.key === 'mimiUser') renderUser();                                     // 로그인 상태 변경
+    });
+  </script>
+</body>
+</html>
