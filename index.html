@@ -5,528 +5,257 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>미미로또방</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Arial', sans-serif;
-      background: radial-gradient(circle at top, #ffeaa7, #fab1a0, #d980fa);
-      animation: bgPulse 5s infinite alternate;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-bottom: 80px;
-      overflow-x: hidden;
-      position: relative;
+    body{
+      margin:0; padding:0; font-family:Arial, sans-serif;
+      background:radial-gradient(circle at top,#ffeaa7,#fab1a0,#d980fa);
+      animation:bgPulse 5s infinite alternate;
+      display:flex; flex-direction:column; align-items:center;
+      min-height:100vh; overflow-x:hidden; position:relative;
+      padding-bottom:24px;
     }
-    @keyframes bgPulse {
-      0% { background-position: 0% 50%; filter: brightness(1); }
-      100% { background-position: 100% 50%; filter: brightness(1.2); }
-    }
+    @keyframes bgPulse{0%{background-position:0% 50%; filter:brightness(1);}100%{background-position:100% 50%; filter:brightness(1.2);}}
 
-    header {
-      margin-top: 20px;
-      animation: fadeIn 1s ease;
-      z-index: 1;
+    /* 상단 바: 로고 + 유저박스 */
+    .topbar{width:100%; display:flex; justify-content:center; position:relative; margin-top:10px; z-index:2;}
+    header{animation:fadeIn 1s ease; text-align:center;}
+    @keyframes fadeIn{from{opacity:0; transform:translateY(-20px);} to{opacity:1; transform:translateY(0);}}
+    img{width:180px; height:auto;}
+    .userbox{
+      position:absolute; right:12px; top:0;
+      display:flex; gap:8px; align-items:center;
+      background:rgba(255,255,255,.85);
+      border-radius:999px; padding:6px 10px;
+      box-shadow:0 2px 8px rgba(0,0,0,.12); font-size:12px;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .userbox button, .userbox a{
+      border:none; background:#6c5ce7; color:#fff; border-radius:8px;
+      padding:6px 8px; font-weight:700; cursor:pointer; text-decoration:none;
     }
-    img {
-      width: 180px;
-      height: auto;
-    }
-    .buttons {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 30px;
-      margin-bottom: 10px;
-      z-index: 1;
-    }
-    .buttons button {
-      padding: 10px 15px;
-      border: none;
-      color: white;
-      font-weight: bold;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 16px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .buttons button:active {
-      transform: scale(1.1);
-      box-shadow: 0 0 20px #fff;
-    }
-    .regular { background-color: #d63031; }
-    .analysis { background-color: #0984e3; }
-    .ai { background-color: #00b894; }
+    .user-name{font-weight:800; color:#2d3436;}
+    .logout{background:#d63031 !important;}
 
-    .ball-container {
-      display: flex;
-      justify-content: center;
-      margin: 20px 0;
-      gap: 10px;
-      flex-wrap: wrap;
-      z-index: 1;
+    .lastwin{
+      width:90%; max-width:520px; margin-top:14px;
+      background:rgba(255,255,255,0.9); border-radius:12px; padding:12px;
+      box-shadow:0 6px 16px rgba(0,0,0,.1);
     }
-    .ball {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      color: white;
-      font-size: 18px;
-      animation: spinIn 1s ease;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    .lastwin .top{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:8px;}
+    .lastwin .title{font-weight:800; color:#2d3436;}
+    .lastwin .links{display:flex; gap:8px; align-items:center;}
+    .lastwin .links a{
+      font-size:12px; color:#fff; background:#6c5ce7;
+      border:none; border-radius:8px; padding:6px 8px;
+      text-decoration:none; cursor:pointer; font-weight:700;
     }
-    @keyframes spinIn {
-      0% { transform: rotate(0deg) scale(0); opacity: 0; }
-      100% { transform: rotate(360deg) scale(1); opacity: 1; }
-    }
+    .lastwin .links a:last-child{background:#0984e3;}
 
-    .select-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 90%;
-      max-width: 480px;
-      margin: 10px 0;
-      z-index: 1;
-      gap: 8px;
-    }
-    .select-actions button {
-      padding: 6px 12px;
-      font-size: 14px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background-color: #2d3436;
-      color: white;
-    }
+    .lastwin .balls{display:flex; flex-direction:column; gap:6px;}
+    .line{display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+    .plus{font-weight:800; color:#2d3436;}
+    .note{font-size:12px; color:#636e72; margin-top:6px;}
 
-    .history {
-      width: 90%;
-      max-width: 480px;
-      z-index: 1;
+    .buttons{display:flex; justify-content:center; flex-wrap:wrap; gap:10px; margin-top:14px; z-index:1;}
+    .buttons a, .buttons button{
+      padding:10px 15px; border:none; color:#fff; font-weight:700; border-radius:10px;
+      cursor:pointer; font-size:16px; box-shadow:0 3px 8px rgba(0,0,0,.2);
+      text-decoration:none; display:inline-block; transition:transform .2s, box-shadow .2s;
     }
-    .history-item {
-      background: white;
-      margin-bottom: 10px;
-      padding: 10px;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      animation: fadeIn 0.5s ease;
-    }
-    .history-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 14px;
-      margin-bottom: 5px;
-      gap: 8px;
-    }
-    .history-balls {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      flex-wrap: wrap;
-    }
-    .history-balls .ball {
-      width: 30px;
-      height: 30px;
-      font-size: 14px;
-      animation: none;
-    }
-    .delete-btn {
-      background: #ccc;
-      border: none;
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-size: 12px;
-      cursor: pointer;
-    }
-    .checkbox { margin-right: 5px; }
+    .buttons a:active, .buttons button:active{transform:scale(1.06); box-shadow:0 0 18px rgba(255,255,255,.7);}
+    .regular{background:#d63031;} .analysis{background:#0984e3;} .ai{background:#00b894;} .view{background:#6c5ce7;}
 
-    /* Flash Effect */
-    .flash {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(255,255,255,0.6);
-      z-index: 99;
-      animation: flashBang 0.4s ease;
-      pointer-events: none;
-    }
-    @keyframes flashBang {
-      0% { opacity: 0; }
-      50% { opacity: 1; }
-      100% { opacity: 0; }
-    }
+    .rank-row{margin:8px 0 6px;}
+    .rank-badge{display:inline-flex; align-items:center; gap:6px;
+      background:rgba(255,255,255,.85); border-radius:999px; padding:6px 10px;
+      font-size:14px; font-weight:800; color:#2d3436; box-shadow:0 2px 8px rgba(0,0,0,.12);}
+    .rank-badge.ok{color:#0e9f6e;} .rank-badge.fail{color:#d63031;}
 
-    /* Lotto Ball Particle Background */
-    .particles {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      z-index: 0;
-      pointer-events: none;
-    }
-    .particles .lotto {
-      position: absolute;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: bold;
-      color: white;
-      animation: fallRotate linear infinite;
-    }
-    @keyframes fallRotate {
-      0% {
-        transform: translateY(-50px) rotate(0deg) scale(0.5);
-        opacity: 0.7;
-      }
-      100% {
-        transform: translateY(110vh) rotate(360deg) scale(1);
-        opacity: 0;
-      }
-    }
+    .ball-container{display:flex; justify-content:center; margin:8px 0 12px; gap:10px; flex-wrap:wrap; z-index:1;}
+    .ball{width:40px; height:40px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:700; color:#fff; font-size:16px;
+      animation:spinIn 0.8s ease; box-shadow:0 2px 5px rgba(0,0,0,.3);}
+    @keyframes spinIn{0%{transform:rotate(0) scale(0); opacity:0;}100%{transform:rotate(360deg) scale(1); opacity:1;}}
+    .bonus-ring{box-shadow:0 0 0 3px #2d3436 inset, 0 0 0 3px #2d3436;}
 
-    /* 로그인 미니바 */
-    .mini-login {
-      position: fixed; right: 10px; top: 10px; z-index: 2;
-      display: flex; gap: 6px; align-items: center; padding: 8px 10px;
-      background: rgba(255,255,255,0.85); color: #111;
-      border-radius: 12px; backdrop-filter: blur(6px);
+    .particles{position:fixed; inset:0; width:100%; height:100%; overflow:hidden; z-index:0; pointer-events:none;}
+    .particles .lotto{
+      position:absolute; width:30px; height:30px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#fff;
+      animation:fallRotate linear infinite;
     }
-    .mini-login input {
-      padding: 6px 8px; border-radius: 8px; border: 1px solid #bbb; width: 120px;
-    }
-    .mini-login button {
-      padding: 6px 10px; border: none; border-radius: 8px;
-      background: #2d3436; color: #fff; cursor: pointer;
-    }
-    .badge {
-      background: #2d3436; color: #fff; padding: 4px 8px;
-      border-radius: 999px; font-size: 12px;
-    }
+    @keyframes fallRotate{0%{transform:translateY(-50px) rotate(0) scale(.5); opacity:.7;}100%{transform:translateY(110vh) rotate(360deg) scale(1); opacity:0;}}
+
+    /* 하단 저장 리스트 */
+    .miniHistory{width:90%; max-width:520px; margin-top:8px;
+      background:rgba(255,255,255,0.85); border-radius:12px; padding:10px;
+      box-shadow:0 6px 16px rgba(0,0,0,.08);}
+    .miniHead{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;}
+    .miniTitle{font-weight:800; color:#2d3436; font-size:14px;}
+    .miniBtns{display:flex; gap:6px;}
+    .miniBtn{padding:6px 8px; border:none; border-radius:8px; font-weight:700; cursor:pointer;
+      color:#fff; background:#6c5ce7; font-size:12px;}
+    .miniBtn.clear{background:#d63031;}
+    .miniList{display:flex; flex-direction:column; gap:6px;}
+    .miniRow{display:flex; justify-content:space-between; align-items:center; background:#fff; padding:8px; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,.08);}
+    .miniNums{display:flex; gap:6px; flex-wrap:wrap; align-items:center;}
+    .chip{width:26px; height:26px; border-radius:13px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:12px;}
+    .miniMeta{font-size:11px; color:#636e72; margin-left:8px;}
+    .miniDel{padding:6px 8px; border:none; border-radius:8px; background:#bbb; color:#fff; font-weight:700; cursor:pointer; font-size:12px;}
+    .empty{color:#636e72; font-size:12px;}
   </style>
 </head>
 <body>
-  <!-- 배경 음악 -->
   <audio autoplay loop>
     <source src="https://raw.githubusercontent.com/pageno/Mimi/main/%EB%AF%B8%EB%AF%B8%EB%A1%9C%EB%98%90%EB%B0%A9.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- 배경 파티클 -->
   <div class="particles" id="particles"></div>
 
-  <!-- 로고 -->
-  <header>
-    <img src="https://raw.githubusercontent.com/pageno/Mimi/main/mimilogo.png" alt="미미로또방 로고">
-  </header>
-
-  <!-- 버튼 -->
-  <div class="buttons">
-    <button class="regular" onclick="drawNumbers('일반', '#d63031')">일반 뽑기</button>
-    <button class="analysis" onclick="drawNumbers('분석', '#0984e3')">분석 뽑기</button>
-    <button class="ai" onclick="drawNumbers('AI', '#00b894')">AI 뽑기</button>
-  </div>
-
-  <!-- 공 출력 -->
-  <div class="ball-container" id="balls"></div>
-
-  <!-- 선택/삭제 -->
-  <div class="select-actions">
-    <label><input type="checkbox" id="selectAll" onchange="toggleAll(this)"> 전체 선택</label>
-    <div style="display:flex; gap:8px;">
-      <button onclick="deleteSelected()">선택 삭제</button>
-      <button onclick="deleteAll()">전체 삭제</button>
+  <!-- 상단: 로고 + 로그인/닉네임 -->
+  <div class="topbar">
+    <header><img src="https://raw.githubusercontent.com/pageno/Mimi/main/mimilogo.png" alt="미미로또방 로고"></header>
+    <div class="userbox" id="userBox">
+      <!-- JS에서 채움 -->
+      <button id="btnLogin" onclick="login()">로그인</button>
     </div>
   </div>
 
-  <!-- 히스토리 -->
-  <div class="history" id="history"></div>
+  <!-- 지난 회차 1등 번호 -->
+  <section class="lastwin">
+    <div class="top">
+      <div class="title" id="lastWinTitle">지난 회차 1등 번호</div>
+      <div class="links">
+        <a href="results.html">결과보기</a>
+        <a href="https://dhlottery.co.kr" target="_blank" rel="noopener">로또 사이트</a>
+      </div>
+    </div>
+    <div class="balls">
+      <div class="line" id="lineMain"></div>
+      <div class="line" id="lineBonus"></div>
+    </div>
+    <div class="note" id="lastWinNote"></div>
+  </section>
+
+  <!-- 버튼 -->
+  <div class="buttons">
+    <button class="regular" onclick="drawNumbers('일반','#d63031')">일반 뽑기</button>
+    <button class="analysis" onclick="drawNumbers('분석','#0984e3')">분석 뽑기</button>
+    <button class="ai" onclick="drawNumbers('AI','#00b894')">AI 뽑기</button>
+    <a class="view" href="results.html">결과보기</a>
+  </div>
+
+  <div class="rank-row" id="currentRankRow" style="display:none;">
+    <span class="rank-badge" id="currentRankBadge"></span>
+  </div>
+
+  <div class="ball-container" id="balls"></div>
+
+  <!-- 하단 저장 -->
+  <section class="miniHistory">
+    <div class="miniHead">
+      <div class="miniTitle">내 최근 저장</div>
+      <div class="miniBtns">
+        <button class="miniBtn" onclick="location.href='results.html'">전체 보기</button>
+        <button class="miniBtn clear" onclick="clearMiniHistory()">전체 삭제</button>
+      </div>
+    </div>
+    <div class="miniList" id="miniList"></div>
+  </section>
 
   <script>
-    /* ----------------------- 기존 번호 뽑기/렌더 ----------------------- */
-    let drawing = false;
+    /* ===== 키 ===== */
+    const LS_LASTWIN='mimiLastWin'; const LS_HISTORY='mimiHistory'; const LS_USER='mimiUser';
 
-    function drawNumbers(type, flashColor = "#fff") {
-      if (drawing) return;
-      drawing = true;
-
-      const flash = document.createElement('div');
-      flash.className = 'flash';
-      flash.style.background = flashColor + 'AA';
-      document.body.appendChild(flash);
-      setTimeout(() => flash.remove(), 500);
-
-      const numbers = new Set();
-      while (numbers.size < 6) {
-        numbers.add(Math.floor(Math.random() * 45) + 1);
-      }
-      const result = [...numbers].sort((a, b) => a - b);
-
-      const container = document.getElementById('balls');
-      container.innerHTML = '';
-
-      result.forEach((num, i) => {
-        setTimeout(() => {
-          const ball = document.createElement('div');
-          ball.className = 'ball';
-          ball.textContent = num;
-          ball.style.background = getColor(num);
-          container.appendChild(ball);
-          if (i === result.length - 1) {
-            setTimeout(() => {
-              saveHistory(result, type);  // ⬅ 저장 연결
-              drawing = false;
-            }, 500);
-          }
-        }, i * 400);
-      });
-    }
-
-    function getColor(num) {
-      if (num <= 10) return '#fbc531';
-      if (num <= 20) return '#00a8ff';
-      if (num <= 30) return '#e84118';
-      if (num <= 40) return '#9c88ff';
-      return '#4cd137';
-    }
-
-    function saveHistory(numbers, type) {
-      const history = document.getElementById('history');
-      const item = document.createElement('div');
-      item.className = 'history-item';
-
-      const now = new Date();
-      const label = `${now.toLocaleDateString()} ${now.toLocaleTimeString()} (${type})`;
-
-      const top = document.createElement('div');
-      top.className = 'history-top';
-
-      const left = document.createElement('div');
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.className = 'checkbox';
-      left.appendChild(checkbox);
-      left.appendChild(document.createTextNode(label));
-
-      const delBtn = document.createElement('button');
-      delBtn.className = 'delete-btn';
-      delBtn.textContent = '삭제';
-      delBtn.onclick = () => {
-        // 화면 삭제 + 스토리지 동기화
-        history.removeChild(item);
-        syncStorageFromDOM();
-      };
-
-      top.appendChild(left);
-      top.appendChild(delBtn);
-
-      const balls = document.createElement('div');
-      balls.className = 'history-balls';
-      numbers.forEach(n => {
-        const b = document.createElement('div');
-        b.className = 'ball';
-        b.textContent = n;
-        b.style.background = getColor(n);
-        balls.appendChild(b);
-      });
-
-      item.appendChild(top);
-      item.appendChild(balls);
-      history.insertBefore(item, history.firstChild);
-    }
-
-    function toggleAll(source) {
-      document.querySelectorAll('.checkbox').forEach(cb => cb.checked = source.checked);
-    }
-
-    function deleteSelected() {
-      document.querySelectorAll('.checkbox:checked').forEach(cb => {
-        const item = cb.closest('.history-item');
-        if (item) item.remove();
-      });
-      syncStorageFromDOM();
-    }
-
-    function deleteAll() {
-      document.getElementById('history').innerHTML = '';
-      syncStorageFromDOM();
-    }
-
-    function generateParticles() {
-      const particleArea = document.getElementById('particles');
-      for (let i = 0; i < 40; i++) {
-        const lotto = document.createElement('div');
-        lotto.className = 'lotto';
-
-        const num = Math.floor(Math.random() * 45) + 1;
-        lotto.textContent = num;
-        lotto.style.background = getColor(num);
-        lotto.style.left = Math.random() * 100 + 'vw';
-        lotto.style.animationDuration = (Math.random() * 5 + 5) + 's';
-        lotto.style.animationDelay = (Math.random() * 10) + 's';
-        particleArea.appendChild(lotto);
+    /* ===== 유저 ===== */
+    function getUser(){ try{return JSON.parse(localStorage.getItem(LS_USER)||'null');}catch(e){return null;} }
+    function setUser(u){ localStorage.setItem(LS_USER, JSON.stringify(u)); }
+    function clearUser(){ localStorage.removeItem(LS_USER); }
+    function renderUser(){
+      const box=document.getElementById('userBox'); const u=getUser();
+      if(!u){
+        box.innerHTML='<button id="btnLogin" onclick="login()">로그인</button>';
+      }else{
+        box.innerHTML=`
+          <span class="user-name">${u.nickname}</span>
+          <button class="logout" onclick="logout()">로그아웃</button>
+        `;
       }
     }
-  </script>
-
-  <script>
-    /* ----------------------- 로그인/자동로그인 + 유저별 저장 ----------------------- */
-    const LS_CURRENT = "mimi_current_user";
-
-    function getCurrentUser(){ return (localStorage.getItem(LS_CURRENT) || "").trim(); }
-    function setCurrentUser(id){ localStorage.setItem(LS_CURRENT, (id||"").trim()); }
-
-    function historyKey(){
-      const u = getCurrentUser();
-      return u ? `history_${u}` : "history_guest";
+    function login(){
+      const nickname = prompt('닉네임을 입력하세요');
+      if(!nickname) return;
+      setUser({nickname, at: Date.now()});
+      renderUser();
+      try{ localStorage.setItem('__mimiPing', String(Date.now())); }catch(e){}
     }
-    function loadHistoryList(){
-      try { return JSON.parse(localStorage.getItem(historyKey()) || "[]"); }
-      catch { return []; }
-    }
-    function saveHistoryList(list){
-      localStorage.setItem(historyKey(), JSON.stringify(list));
+    function logout(){
+      if(!confirm('로그아웃할까요?')) return;
+      clearUser(); renderUser();
+      try{ localStorage.setItem('__mimiPing', String(Date.now())); }catch(e){}
     }
 
-    // DOM → 스토리지로 동기화 (삭제/전체삭제 시 호출)
-    function syncStorageFromDOM(){
-      const container = document.getElementById('history');
-      const items = Array.from(container.querySelectorAll('.history-item'));
-      const list = items.map(it=>{
-        const nums = Array.from(it.querySelectorAll('.history-balls .ball'))
-          .map(b=>Number(b.textContent)).sort((a,b)=>a-b);
-        const label = it.querySelector('.history-top')?.innerText || "";
-        const type = (label.match(/\((.*?)\)/)||[])[1] || "일반";
-        const tsMatch = label.match(/(\d{4}.\d{1,2}.\d{1,2}.*\d{1,2}:\d{2}:\d{2})/); // 지역포맷 다양해 대략 저장
-        return { numbers: nums, type, ts: Date.now() };
-      });
-      saveHistoryList(list);
+    /* ===== 공통 유틸 ===== */
+    function getColor(n){ if(n<=10)return'#fbc531'; if(n<=20)return'#00a8ff'; if(n<=30)return'#e84118'; if(n<=40)return'#9c88ff'; return'#4cd137'; }
+    function getLastWin(){ try{ return JSON.parse(localStorage.getItem(LS_LASTWIN)||'null'); }catch(e){ return null; } }
+    function loadHistory(){ try{ return JSON.parse(localStorage.getItem(LS_HISTORY)||'[]'); }catch(e){ return []; } }
+    function saveHistory(a){ localStorage.setItem(LS_HISTORY, JSON.stringify(a)); }
+
+    function renderLastWin(){
+      const data=getLastWin(); const lineMain=document.getElementById('lineMain'); const lineBonus=document.getElementById('lineBonus'); const note=document.getElementById('lastWinNote');
+      lineMain.innerHTML=''; lineBonus.innerHTML=''; note.textContent='';
+      if(!data||!Array.isArray(data.numbers)||data.numbers.length!==6){ note.textContent='결과보기에서 1등 번호를 설정하세요.'; return; }
+      data.numbers.slice().sort((a,b)=>a-b).forEach(n=>{const b=document.createElement('div'); b.className='ball'; b.textContent=n; b.style.background=getColor(n); lineMain.appendChild(b);});
+      const plus=document.createElement('span'); plus.className='plus'; plus.textContent='+ 보너스'; lineBonus.appendChild(plus);
+      if(data.bonus!=null){const bb=document.createElement('div'); bb.className='ball bonus-ring'; bb.style.background='#2d3436'; bb.textContent=data.bonus; lineBonus.appendChild(bb);} else {lineBonus.appendChild(document.createTextNode('-'));}
+      note.textContent='기준 번호가 설정되었습니다.';
     }
 
-    // 기존 saveHistory 호출마다 스토리지에도 즉시 기록되도록 패치
-    (function patchSaveHistory(){
-      if (window._patchedSave) return;
-      window._patchedSave = true;
-      const _orig = window.saveHistory;
-      window.saveHistory = function(numbers, type){
-        _orig(numbers, type);
-        // append to storage (맨 앞에 추가)
-        const list = loadHistoryList();
-        list.unshift({ numbers, type, ts: Date.now() });
-        saveHistoryList(list);
-      };
-    })();
+    function evaluateRank(draw){const lw=getLastWin(); if(!lw) return {label:'기준없음',rank:0,matches:[],bonusMatch:false}; const winSet=new Set(lw.numbers); const matched=draw.filter(n=>winSet.has(n)); const bonusMatch=lw.bonus?draw.includes(lw.bonus):false; const c=matched.length; let label='꽝',rank=0; if(c===6){rank=1;label='1등';} else if(c===5&&bonusMatch){rank=2;label='2등';} else if(c===5){rank=3;label='3등';} else if(c===4){rank=4;label='4등';} else if(c===3){rank=5;label='5등';} return {label,rank,matches,bonusMatch}; }
 
-    // 스토리지 → DOM 렌더 (로그인 전환/초기 로드시)
-    function renderHistoryFromStorage(){
-      const list = loadHistoryList();
-      const container = document.getElementById('history');
-      container.innerHTML = "";
-      list.forEach(item=>{
-        // UI 렌더(원본 saveHistory UI와 동일 형태)
-        const div = document.createElement('div');
-        div.className = 'history-item';
+    const ALL_NUMS=Array.from({length:45},(_,i)=>i+1);
+    function drawSetFromPool(pool){if(pool.length<6) return null;const tmp=pool.slice();const chosen=[];for(let i=0;i<6;i++){const idx=Math.floor(Math.random()*tmp.length);chosen.push(tmp.splice(idx,1)[0]);}return chosen.sort((a,b)=>a-b);}
+    function getRandomNumbers(){return drawSetFromPool(ALL_NUMS)||[1,2,3,4,5,6];}
+    function drawNumbers(type,flashColor){
+      const flash=document.createElement('div');flash.className='flash';Object.assign(flash.style,{background:flashColor+'AA',position:'fixed',inset:'0',pointerEvents:'none'});document.body.appendChild(flash);setTimeout(()=>flash.remove(),400);
+      let result; if(type==='일반') result=getRandomNumbers(); else if(type==='분석') result=getRandomNumbers(); else if(type==='AI') result=getRandomNumbers(); else result=getRandomNumbers();
+      const {label,rank,matches,bonusMatch}=evaluateRank(result);
+      const row=document.getElementById('currentRankRow'); const badge=document.getElementById('currentRankBadge');
+      row.style.display='block'; badge.textContent=(label==='기준없음')?'지난 회차 미설정':`결과: ${label} (${matches.length}${bonusMatch?'+B':''} 일치)`;
+      badge.classList.toggle('ok',rank>=1&&rank<=5); badge.classList.toggle('fail',rank===0&&label!=='기준없음');
+      const container=document.getElementById('balls');container.innerHTML='';
+      result.forEach((num,i)=>{setTimeout(()=>{const b=document.createElement('div');b.className='ball';b.textContent=num;b.style.background=getColor(num);container.appendChild(b);},i*100);});
+      const h=loadHistory();h.unshift({ts:Date.now(),mode:type,nums:result});saveHistory(h);renderMiniHistory();
+      try{ localStorage.setItem('__mimiPing', String(Date.now())); }catch(e){}
+    }
 
-        const dt = new Date(item.ts);
-        const label = `${dt.toLocaleDateString()} ${dt.toLocaleTimeString()} (${item.type})`;
-
-        const top = document.createElement('div');
-        top.className = 'history-top';
-
-        const left = document.createElement('div');
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'checkbox';
-        left.appendChild(checkbox);
-        left.appendChild(document.createTextNode(label));
-
-        const delBtn = document.createElement('button');
-        delBtn.className = 'delete-btn';
-        delBtn.textContent = '삭제';
-        delBtn.onclick = () => { div.remove(); syncStorageFromDOM(); };
-
-        top.appendChild(left);
-        top.appendChild(delBtn);
-
-        const balls = document.createElement('div');
-        balls.className = 'history-balls';
-        (item.numbers||[]).forEach(n=>{
-          const b = document.createElement('div');
-          b.className = 'ball';
-          b.textContent = n;
-          b.style.background = getColor(n);
-          balls.appendChild(b);
-        });
-
-        div.appendChild(top);
-        div.appendChild(balls);
-        container.appendChild(div);
+    function renderMiniHistory(limit=10){
+      const list=document.getElementById('miniList');const data=loadHistory();list.innerHTML='';
+      if(data.length===0){list.innerHTML='<div class="empty">아직 저장된 결과가 없습니다.</div>';return;}
+      data.slice(0,limit).forEach(item=>{
+        const row=document.createElement('div');row.className='miniRow';
+        const left=document.createElement('div');left.style.display='flex';left.style.alignItems='center';left.style.flexWrap='wrap';
+        const nums=document.createElement('div');nums.className='miniNums';
+        item.nums.forEach(n=>{const c=document.createElement('div');c.className='chip';c.textContent=n;c.style.background=getColor(n);nums.appendChild(c);});
+        const meta=document.createElement('div');meta.className='miniMeta';meta.textContent=`${item.mode} · ${new Date(item.ts).toLocaleString()}`;
+        left.appendChild(nums);left.appendChild(meta);
+        const del=document.createElement('button');del.className='miniDel';del.textContent='삭제';
+        del.onclick=()=>{const arr=loadHistory();const idx=arr.findIndex(x=>x.ts===item.ts&&x.mode===item.mode);if(idx>-1){arr.splice(idx,1);saveHistory(arr);renderMiniHistory(); try{ localStorage.setItem('__mimiPing', String(Date.now())); }catch(e){} }};
+        row.appendChild(left);row.appendChild(del);list.appendChild(row);
       });
     }
+    function clearMiniHistory(){if(confirm('모든 기록 삭제?')){saveHistory([]);renderMiniHistory(); try{ localStorage.setItem('__mimiPing', String(Date.now())); }catch(e){} }}
 
-    // 로그인 미니바
-    function mountLoginBar(){
-      const bar = document.createElement('div');
-      bar.className = 'mini-login';
-      document.body.appendChild(bar);
+    function generateParticles(){const area=document.getElementById('particles');for(let i=0;i<40;i++){const lotto=document.createElement('div');lotto.className='lotto';const num=Math.floor(Math.random()*45)+1;lotto.textContent=num;lotto.style.background=getColor(num);lotto.style.left=Math.random()*100+'vw';lotto.style.animationDuration=(Math.random()*5+5)+'s';lotto.style.animationDelay=(Math.random()*10)+'s';area.appendChild(lotto);}}
+    window.onload=()=>{
+      generateParticles(); setInterval(generateParticles,8000);
+      renderUser(); renderLastWin(); renderMiniHistory();
+    };
 
-      function renderBar(){
-        const u = getCurrentUser();
-        bar.innerHTML = "";
-        if (u){
-          const badge = document.createElement('span');
-          badge.className = 'badge';
-          badge.textContent = `ID: ${u}`;
-          const btnLogout = document.createElement('button');
-          btnLogout.textContent = '로그아웃';
-          btnLogout.onclick = ()=>{
-            setCurrentUser("");
-            renderBar();
-            renderHistoryFromStorage(); // 게스트 히스토리로 전환
-          };
-          bar.appendChild(badge);
-          bar.appendChild(btnLogout);
-        } else {
-          const input = document.createElement('input');
-          input.placeholder = 'ID 입력';
-          const btnLogin = document.createElement('button');
-          btnLogin.textContent = '로그인';
-          btnLogin.onclick = ()=>{
-            const id = (input.value||"").trim();
-            if (!id) return alert('ID를 입력하세요');
-            setCurrentUser(id);
-            renderBar();
-            renderHistoryFromStorage(); // 해당 ID 히스토리 로드
-          };
-          bar.appendChild(input);
-          bar.appendChild(btnLogin);
-        }
-      }
-      renderBar();
-    }
-
-    // 부팅
-    window.addEventListener('load', ()=>{
-      generateParticles();
-      setInterval(generateParticles, 8000);
-      mountLoginBar();          // 로그인 UI
-      renderHistoryFromStorage(); // 자동 로그인된 사용자 히스토리 표시
+    /* ✅ 다른 탭/페이지와 실시간 동기화 */
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'mimiLastWin') renderLastWin();
+      if (e.key === 'mimiHistory' || e.key === '__mimiPing') renderMiniHistory();
+      if (e.key === 'mimiUser') renderUser();
     });
   </script>
 </body>
